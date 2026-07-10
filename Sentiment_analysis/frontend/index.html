@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentiment Analyzer</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="panel">
+
+  <div class="panel-header">
+    <h1>Sentiment Analyzer</h1>
+  </div>
+  <div class="subtitle"></div>
+
+<label class="field-label" for="text">Enter text to analyze:</label>
+  <textarea id="text" placeholder="Paste a sentence or review to analyze..."></textarea>
+
+  <button class="read-btn" id="analyzeBtn" onclick="analyze()">Analyze Sentiment</button>
+
+  <div id="status" class="status-line"></div>
+
+  <div id="result" class="result">
+    <div id="resultLabel" class="result-label"></div>
+    <div class="confidence-row">
+      <div class="confidence-track">
+        <div id="confidenceFill" class="confidence-fill"></div>
+      </div>
+      <div id="confidenceValue" class="confidence-value"></div>
+    </div>
+  </div>
+
+  <div class="panel-footer">
+    <span><span class="status-dot" id="statusDot"></span><span id="statusText">Checking backend…</span></span>
+  </div>
+
+</div>
+
+<script>
+  const API_URL = "http://127.0.0.1:8000/predict";
+
+  async function checkBackend() {
+    const dot = document.getElementById("statusDot");
+    const text = document.getElementById("statusText");
+    try {
+      await fetch("http://127.0.0.1:8000/docs", { method: "GET" });
+      dot.classList.add("live");
+      text.textContent = "Backend connected";
+    } catch (e) {
+      dot.classList.remove("live");
+      text.textContent = "Backend offline";
+    }
+  }
+  checkBackend();
+
+  async function analyze() {
+    const textEl = document.getElementById("text");
+    const btn = document.getElementById("analyzeBtn");
+    const status = document.getElementById("status");
+    const result = document.getElementById("result");
+    const resultLabel = document.getElementById("resultLabel");
+    const confidenceFill = document.getElementById("confidenceFill");
+    const confidenceValue = document.getElementById("confidenceValue");
+    const inputText = textEl.value.trim();
+
+    if (!inputText) {
+      status.textContent = "Enter text before analyzing sentiment.";
+      status.classList.add("error");
+      return;
+    }
+
+    status.classList.remove("error");
+    status.textContent = "";
+    btn.disabled = true;
+    btn.textContent = "Reading…";
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: inputText })
+      });
+
+      if (!res.ok) throw new Error("Server responded with " + res.status);
+
+      const data = await res.json();
+      const cls = data.label === "positive" ? "positive" : "negative";
+      const pct = (data.confidence * 100).toFixed(1);
+
+      resultLabel.textContent = data.label.toUpperCase();
+      resultLabel.className = "result-label " + cls;
+
+      confidenceFill.className = "confidence-fill " + cls;
+      confidenceFill.style.width = pct + "%";
+      confidenceValue.textContent = pct + "%";
+
+      result.classList.add("visible");
+
+    } catch (err) {
+      status.textContent = "Could not reach backend. Is uvicorn running?";
+      status.classList.add("error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Analyze Sentiment";
+    }
+  }
+</script>
+
+</body>
+</html>

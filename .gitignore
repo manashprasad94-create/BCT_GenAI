@@ -1,0 +1,13 @@
+
+Documenting_bot/backend/venv/
+Documenting_bot/backend/.env
+Documenting_bot/backend/tmp_jobs/
+Documenting_bot/backend/__pycache__/
+Documenting_bot/frontend/node_modules/
+Documenting_bot/frontend/.next/
+Documenting_bot/frontend/.env.local
+
+__pycache__/
+*.pyc
+
+Sentiment_analysis/backend/sentiment_model/model.safetensors

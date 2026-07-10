@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --color-ink: #111318;
+  --color-surface: #1b1e27;
+  --color-border: #2c3040;
+  --color-text-primary: #edebe6;
+  --color-text-secondary: #8b92a5;
+  --color-amber: #f0b429;
+  --color-teal: #5eead4;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-text-primary);
+}
